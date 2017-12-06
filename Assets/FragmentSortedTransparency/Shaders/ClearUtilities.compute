@@ -1,5 +1,6 @@
 ﻿#pragma kernel ClearHeaderBuffer
 #pragma kernel ClearLinkedListBuffer
+#pragma kernel SortLinkedList
 
 struct LinkedListNode {
 	float4 color;
@@ -7,6 +8,7 @@ struct LinkedListNode {
 	int childIndex;
 };
 
+uint MAX_SORT_ITERATIONS = 10;
 RWStructuredBuffer<int> _FragmentSortedTransparencyHead;
 RWStructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList;
  
@@ -23,4 +25,32 @@ void ClearLinkedListBuffer(uint3 id : SV_DispatchThreadID) {
 	n.childIndex = -1;
 	
 	_FragmentSortedTransparencyLinkedList[id.x] = n;
+}
+
+[numthreads(1, 1, 1)]
+void SortLinkedList(uint3 id : SV_DispatchThreadID) {
+	for (uint i = 0; i < MAX_SORT_ITERATIONS; i++) {
+		int currIndex = _FragmentSortedTransparencyHead[id.x];
+		
+		while (currIndex != -1) {
+			LinkedListNode n = _FragmentSortedTransparencyLinkedList[currIndex];
+			int nextIndex = n.childIndex;
+			if (nextIndex != -1) {
+				LinkedListNode n2 = _FragmentSortedTransparencyLinkedList[nextIndex];
+
+				if (n.depth > n2.depth) {
+					LinkedListNode newCurr = n2;
+					newCurr.childIndex = n.childIndex;
+
+					LinkedListNode newNext = n;
+					newNext.childIndex = n2.childIndex;
+					
+					_FragmentSortedTransparencyLinkedList[currIndex] = newCurr;
+					_FragmentSortedTransparencyLinkedList[nextIndex] = newNext;
+				}
+			}
+			currIndex = nextIndex;
+		}
+		
+	}
 }

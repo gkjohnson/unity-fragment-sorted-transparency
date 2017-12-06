@@ -15,6 +15,7 @@ public class FragmentSortedEffect : MonoBehaviour {
 
     const int CLEAR_HEADER_KERNEL = 0;
     const int CLEAR_LINKEDLIST_KERNEL = 1;
+    const int SORT_LINKEDLIST_KERNEL = 2;
 
     static List<FragmentSortedRenderer> _renderers = new List<FragmentSortedRenderer>();
     public static bool RegisterRenderer(FragmentSortedRenderer fsr) {
@@ -111,6 +112,12 @@ public class FragmentSortedEffect : MonoBehaviour {
         effectCamera.Render();
         effectCamera.RemoveAllCommandBuffers();
         commandBuffer.Release();
+
+        // Sort the fragments
+        clearUtilities.SetBuffer(SORT_LINKEDLIST_KERNEL, HEAD_BUFFER_NAME, _headerBuffer);
+        clearUtilities.SetBuffer(SORT_LINKEDLIST_KERNEL, LINKEDLIST_BUFFER_NAME, _linkedListBuffer);
+        clearUtilities.Dispatch(SORT_LINKEDLIST_KERNEL, _headerBuffer.count, 1, 1);
+
         Graphics.ClearRandomWriteTargets();
 
         // TODO: sort the fragments here?
