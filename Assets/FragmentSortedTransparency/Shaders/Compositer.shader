@@ -28,8 +28,8 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
-			uniform RWStructuredBuffer<int> _FragmentSortedTransparencyHead : register(u1);
-			uniform RWStructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList : register(u2);
+			StructuredBuffer<int> _FragmentSortedTransparencyHead;
+			StructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList;
 
 			// Our Vertex Shader
 			v2f vert(appdata_base v) {
@@ -62,9 +62,9 @@
 				while (currIndex != -1) {
 					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex];
 
+					color.rgb = lerp(color.rgb, node.color.rgb, node.color.a);
+					// TODO: depth compare
 
-					//color.rgb = color.rgb * (1 - node.color.a) + node.color.rgb * node.color.a;
-					color = float4(node.color.r, 0, 0, 1);
 					currIndex = node.childIndex;
 				}
 

@@ -111,21 +111,20 @@ public class FragmentSortedEffect : MonoBehaviour {
         effectCamera.Render();
         effectCamera.RemoveAllCommandBuffers();
         commandBuffer.Release();
+        Graphics.ClearRandomWriteTargets();
+
         // TODO: sort the fragments here?
         // or in draw?
         // or on insert?
 
         // composite into the destination buffer
         // TODO: How do we sample the depth buffer here?
-        compositeMaterial.SetBuffer(HEAD_BUFFER_NAME, _headerBuffer);
-        compositeMaterial.SetBuffer(LINKEDLIST_BUFFER_NAME, _linkedListBuffer);
         
         Graphics.Blit(source, destination, compositeMaterial);
         
         Shader.SetGlobalBuffer(HEAD_BUFFER_NAME, null);
         Shader.SetGlobalBuffer(LINKEDLIST_BUFFER_NAME, null);
         Shader.SetGlobalInt(LINKEDLIST_NULL_NAME, 0);
-        Graphics.ClearRandomWriteTargets();
     }
 
     private void OnDestroy() {
