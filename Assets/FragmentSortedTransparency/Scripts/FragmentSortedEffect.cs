@@ -1,7 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class FragmentSortedEffect : MonoBehaviour {
+    struct LinkedListHead {
+        uint childIndex;
+    }
+
+    struct LinkedListNode {
+        Color32 color;
+        float depth;
+        uint childIndex;
+    }
+
     static List<FragmentSortedRenderer> _renderers = new List<FragmentSortedRenderer>();
 
     [Range(0.5f, 10.0f)]
@@ -22,6 +33,13 @@ public class FragmentSortedEffect : MonoBehaviour {
     //      uint nextChild
     // }
 
+    public Shader compositeShader = null;
+
+    Material _compositeMaterial = null;
+    Material compositeMaterial { get {
+        return _compositeMaterial = _compositeMaterial ?? new Material(compositeShader);
+    } }
+
     int headerLength { get {
         return Mathf.FloorToInt(Screen.width * resolutionScale * Screen.height * resolutionScale);
     } }
@@ -37,7 +55,11 @@ public class FragmentSortedEffect : MonoBehaviour {
 
     ComputeBuffer _headerBuffer = null;
     ComputeBuffer _linkedListBuffer = null;
-    
+
+    private void Start() {
+        GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
+    }
+
     void OnRenderImage(RenderTexture source, RenderTexture destination) {
         // intialize the post effect render camera
         effectCamera.CopyFrom(GetComponent<Camera>());
@@ -48,14 +70,14 @@ public class FragmentSortedEffect : MonoBehaviour {
             _headerBuffer.Release();
             _headerBuffer = null;
         }
-        if (_headerBuffer == null) _headerBuffer = new ComputeBuffer(headerLength, 4);
+        if (_headerBuffer == null) _headerBuffer = new ComputeBuffer(headerLength, Marshal.SizeOf(typeof(LinkedListHead)));
 
         // initialize or resize the fragment linked list / append buffer
         if (_linkedListBuffer != null && _linkedListBuffer.count  != linkedListLength) {
             _linkedListBuffer.Release();
             _linkedListBuffer = null;
         }
-        if (_linkedListBuffer == null) _linkedListBuffer = new ComputeBuffer(linkedListLength, 4, ComputeBufferType.Counter);
+        if (_linkedListBuffer == null) _linkedListBuffer = new ComputeBuffer(linkedListLength, Marshal.SizeOf(typeof(LinkedListNode)), ComputeBufferType.Counter);
 
         // TODO: clear the compute buffers
         
@@ -82,7 +104,7 @@ public class FragmentSortedEffect : MonoBehaviour {
 
         // composite into the destination buffer
         // TODO: How do we sample the depth buffer here?
-        Graphics.Blit(source, destination, null);
+        Graphics.Blit(source, destination, compositeMaterial);
     }
 
 }
