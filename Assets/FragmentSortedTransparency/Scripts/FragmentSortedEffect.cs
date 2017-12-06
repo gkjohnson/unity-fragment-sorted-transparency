@@ -3,37 +3,41 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class FragmentSortedEffect : MonoBehaviour {
-    struct LinkedListHead {
-        uint childIndex;
+    struct LinkedListNode {
+        float r, g, b, a;
+        float depth;
+        int childIndex;
     }
 
-    struct LinkedListNode {
-        Color32 color;
-        float depth;
-        uint childIndex;
-    }
+    const string HEAD_BUFFER_NAME = "_FragmentSortedTransparencyHead";
+    const string LINKEDLIST_BUFFER_NAME = "_FragmentSortedTransparencyLinkedList";
+    const string LINKEDLIST_NULL_NAME = "LINKEDLIST_END";
+
+    const int CLEAR_HEADER_KERNEL = 0;
+    const int CLEAR_LINKEDLIST_KERNEL = 1;
 
     static List<FragmentSortedRenderer> _renderers = new List<FragmentSortedRenderer>();
+    public static bool RegisterRenderer(FragmentSortedRenderer fsr) {
+        if (_renderers.Contains(fsr)) return false;
+        _renderers.Add(fsr);
+        return true;
+    }
+
+    public static bool DeregisterRenderer(FragmentSortedRenderer fsr) {
+        if (!_renderers.Contains(fsr)) return false;
+        _renderers.Remove(fsr);
+        return true;
+    }
+
 
     [Range(0.5f, 10.0f)]
     public float fragsPerPixel = 4;
 
     [Range(0.25f, 4.0f)]
     public float resolutionScale = 1;
-    // Header Buffer Struct
-    // {
-    //      uint index
-    // }
-
-    // Linked List Struct
-    // {
-    //      Color surfaceColor
-    //      Color internalColor
-    //      uint depth
-    //      uint nextChild
-    // }
-
+    
     public Shader compositeShader = null;
+    public ComputeShader clearUtilities = null;
 
     Material _compositeMaterial = null;
     Material compositeMaterial { get {
@@ -63,6 +67,7 @@ public class FragmentSortedEffect : MonoBehaviour {
     void OnRenderImage(RenderTexture source, RenderTexture destination) {
         // intialize the post effect render camera
         effectCamera.CopyFrom(GetComponent<Camera>());
+        effectCamera.cullingMask = 0;
         effectCamera.enabled = false;
 
         // initialize or resize linked list head buffer
@@ -70,7 +75,7 @@ public class FragmentSortedEffect : MonoBehaviour {
             _headerBuffer.Release();
             _headerBuffer = null;
         }
-        if (_headerBuffer == null) _headerBuffer = new ComputeBuffer(headerLength, Marshal.SizeOf(typeof(LinkedListHead)));
+        if (_headerBuffer == null) _headerBuffer = new ComputeBuffer(headerLength, Marshal.SizeOf(typeof(int)));
 
         // initialize or resize the fragment linked list / append buffer
         if (_linkedListBuffer != null && _linkedListBuffer.count  != linkedListLength) {
@@ -79,11 +84,19 @@ public class FragmentSortedEffect : MonoBehaviour {
         }
         if (_linkedListBuffer == null) _linkedListBuffer = new ComputeBuffer(linkedListLength, Marshal.SizeOf(typeof(LinkedListNode)), ComputeBufferType.Counter);
 
-        // TODO: clear the compute buffers
+        Graphics.SetRandomWriteTarget(1, _headerBuffer);
+        Graphics.SetRandomWriteTarget(2, _linkedListBuffer);
+
+        clearUtilities.SetBuffer(CLEAR_HEADER_KERNEL, HEAD_BUFFER_NAME, _headerBuffer);
+        clearUtilities.Dispatch(CLEAR_HEADER_KERNEL, _headerBuffer.count, 1, 1);
+    
+        clearUtilities.SetBuffer(CLEAR_LINKEDLIST_KERNEL, LINKEDLIST_BUFFER_NAME, _linkedListBuffer);
+        clearUtilities.Dispatch(CLEAR_LINKEDLIST_KERNEL, _linkedListBuffer.count, 1, 1);
         
         // Draw the meshes
-        Shader.SetGlobalBuffer("_FragmentSortedTransparencyHead", _headerBuffer);
-        Shader.SetGlobalBuffer("_FragmentSortedTransparencyLinkedList", _linkedListBuffer);
+        Shader.SetGlobalBuffer(HEAD_BUFFER_NAME, _headerBuffer);
+        Shader.SetGlobalBuffer(LINKEDLIST_BUFFER_NAME, _linkedListBuffer);
+        Shader.SetGlobalInt(LINKEDLIST_NULL_NAME, _linkedListBuffer.count);
 
         UnityEngine.Rendering.CommandBuffer commandBuffer = new UnityEngine.Rendering.CommandBuffer();
         for (int i = 0; i < _renderers.Count; i ++) {
@@ -94,17 +107,29 @@ public class FragmentSortedEffect : MonoBehaviour {
             if (fsr.material && mf) commandBuffer.DrawMesh(mf.sharedMesh, fsr.transform.localToWorldMatrix, fsr.material);
         }
 
+        effectCamera.AddCommandBuffer(UnityEngine.Rendering.CameraEvent.AfterEverything, commandBuffer);
         effectCamera.Render();
         effectCamera.RemoveAllCommandBuffers();
         commandBuffer.Release();
-        Shader.SetGlobalBuffer("_FragmentSortedTransparencyHead", null);
-        Shader.SetGlobalBuffer("_FragmentSortedTransparencyLinkedList", null);
-
         // TODO: sort the fragments here?
+        // or in draw?
+        // or on insert?
 
         // composite into the destination buffer
         // TODO: How do we sample the depth buffer here?
+        compositeMaterial.SetBuffer(HEAD_BUFFER_NAME, _headerBuffer);
+        compositeMaterial.SetBuffer(LINKEDLIST_BUFFER_NAME, _linkedListBuffer);
+        
         Graphics.Blit(source, destination, compositeMaterial);
+        
+        Shader.SetGlobalBuffer(HEAD_BUFFER_NAME, null);
+        Shader.SetGlobalBuffer(LINKEDLIST_BUFFER_NAME, null);
+        Shader.SetGlobalInt(LINKEDLIST_NULL_NAME, 0);
+        Graphics.ClearRandomWriteTargets();
     }
 
+    private void OnDestroy() {
+        _headerBuffer.Release();
+        _linkedListBuffer.Release();
+    }
 }
