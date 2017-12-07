@@ -33,9 +33,6 @@ public class FragmentSortedEffect : MonoBehaviour {
 
     [Range(0.5f, 10.0f)]
     public float fragsPerPixel = 4;
-
-    [Range(0.25f, 4.0f)]
-    public float resolutionScale = 1;
     
     public Shader compositeShader = null;
     public ComputeShader clearUtilities = null;
@@ -46,7 +43,7 @@ public class FragmentSortedEffect : MonoBehaviour {
     } }
 
     int headerLength { get {
-        return Mathf.FloorToInt(Screen.width * resolutionScale * Screen.height * resolutionScale);
+        return Mathf.FloorToInt(Screen.width * Screen.height);
     } }
 
     int linkedListLength { get {
