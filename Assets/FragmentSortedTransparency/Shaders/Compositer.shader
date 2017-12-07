@@ -73,11 +73,6 @@
 				}
 
 				return color;
-
-				// extract depth value and normal values
-				//DecodeDepthNormal(tex2D(_CameraDepthNormalsTexture, i.scrPos.xy), depthValue, normalValues);
-				
-				return (1 - depthValue) * color;
 			}
 			ENDCG
 		}

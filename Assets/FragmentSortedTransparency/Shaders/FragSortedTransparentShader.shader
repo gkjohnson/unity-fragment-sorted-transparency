@@ -75,7 +75,6 @@
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
 				}
 
-
 				return col;
 			}
 

@@ -135,7 +135,7 @@ public class FragmentSortedEffect : MonoBehaviour {
     }
 
     private void OnDestroy() {
-        _headerBuffer.Release();
-        _linkedListBuffer.Release();
+        if (_headerBuffer != null) _headerBuffer.Release();
+        if (_linkedListBuffer != null) _linkedListBuffer.Release();
     }
 }
