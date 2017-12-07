@@ -57,8 +57,6 @@
 				float4 LightDirection = normalize(_WorldSpaceLightPos0);
 				float4 DiffuseLight = saturate(dot(LightDirection, -normalDirection))*_LightColor0;
 				float4 col = float4(AmbientLight + DiffuseLight) * _Color;
-				col.rgb = float3(1, 0, 0);
-				col.a = _Color.a;
 
 				// Form the 
 				int childIndex = (int)_FragmentSortedTransparencyLinkedList.IncrementCounter();

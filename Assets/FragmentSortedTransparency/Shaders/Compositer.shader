@@ -53,7 +53,8 @@
 
 				float3 normalValues;
 				float4 uv = UNITY_PROJ_COORD(i.spos);
-				float depthValue = Linear01Depth(tex2Dproj(_CameraDepthTexture, uv).r);
+				float depthSample = tex2Dproj(_CameraDepthTexture, uv).r;
+				float depthValue = Linear01Depth(depthSample);
 				
 				float4 color = tex2Dproj(_MainTex, uv);
 				float4 depth = float4(depthValue, depthValue, depthValue, 1);
@@ -62,8 +63,11 @@
 				while (currIndex != -1) {
 					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex];
 
-					color.rgb = lerp(color.rgb, node.color.rgb, node.color.a);
-					// TODO: depth compare
+					float3 newColor = lerp(color.rgb, node.color.rgb, node.color.a);
+				
+					float nodeDepth = Linear01Depth(node.depth);
+					float delta = ceil(saturate(depthValue - nodeDepth));				
+					color.rgb = lerp(color.rgb, newColor, delta);
 
 					currIndex = node.childIndex;
 				}
