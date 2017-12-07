@@ -57,6 +57,7 @@
 				float4 LightDirection = normalize(_WorldSpaceLightPos0);
 				float4 DiffuseLight = saturate(dot(LightDirection, -normalDirection))*_LightColor0;
 				float4 col = float4(AmbientLight + DiffuseLight) * _Color;
+				col.a = _Color.a;
 
 				// Form the 
 				int childIndex = (int)_FragmentSortedTransparencyLinkedList.IncrementCounter();
@@ -68,7 +69,7 @@
 					InterlockedExchange(_FragmentSortedTransparencyHead[headIndex], childIndex, oldHeadIndex);
 
 					LinkedListNode n;
-					n.color = _Color;
+					n.color = col;
 					n.depth = i.pos.z;
 					n.childIndex = oldHeadIndex;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;

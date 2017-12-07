@@ -2,13 +2,14 @@
 #pragma kernel ClearLinkedListBuffer
 #pragma kernel SortLinkedList
 
+#define MAX_SORT_ITERATIONS 10
+
 struct LinkedListNode {
 	float4 color;
 	float depth;
 	int childIndex;
 };
 
-uint MAX_SORT_ITERATIONS = 10;
 RWStructuredBuffer<int> _FragmentSortedTransparencyHead;
 RWStructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList;
  
