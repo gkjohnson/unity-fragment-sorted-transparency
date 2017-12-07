@@ -15,6 +15,7 @@ Full fragment-sorted-transparency implementation using compute buffers and shade
 - [ ] Store the facing direction in the fragment and scale the opacity based on volume / depth delta
 - [ ] Provide visualization for heavily overlapped pixels
 - [ ] Store both the volume color and surface color in a fragment so it can be handled separately
+- [ ] Cast colored "shadows" from transparent objects
 
 #### Testing
 - [ ] Test low resolution support
