@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FragmentSortedEffect : MonoBehaviour {
     struct LinkedListNode {
-        float r, g, b, a;
+        Color32 color;
         float depth;
         uint childIndex;
     }
