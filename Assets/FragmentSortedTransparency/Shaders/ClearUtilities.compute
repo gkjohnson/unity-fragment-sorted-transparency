@@ -39,7 +39,7 @@ void SortLinkedList(uint3 id : SV_DispatchThreadID) {
 			if (nextIndex != -1) {
 				LinkedListNode n2 = _FragmentSortedTransparencyLinkedList[nextIndex];
 
-				if (n.depth > n2.depth) {
+				if (n.depth < n2.depth) {
 					LinkedListNode newCurr = n2;
 					newCurr.childIndex = n.childIndex;
 

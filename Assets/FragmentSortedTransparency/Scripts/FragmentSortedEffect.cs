@@ -65,6 +65,7 @@ public class FragmentSortedEffect : MonoBehaviour {
     void OnRenderImage(RenderTexture source, RenderTexture destination) {
         // intialize the post effect render camera
         effectCamera.CopyFrom(GetComponent<Camera>());
+        effectCamera.clearFlags = CameraClearFlags.Nothing;
         effectCamera.cullingMask = 0;
         effectCamera.enabled = false;
 

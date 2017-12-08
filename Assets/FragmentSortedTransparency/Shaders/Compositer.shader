@@ -48,10 +48,6 @@
 				int headIndex = screenPos.y * _ScreenParams.x + screenPos.x;
 				int child = _FragmentSortedTransparencyHead[headIndex];
 
-
-
-
-				float3 normalValues;
 				float4 uv = UNITY_PROJ_COORD(i.spos);
 				float depthSample = tex2Dproj(_CameraDepthTexture, uv).r;
 				float depthValue = Linear01Depth(depthSample);
@@ -65,7 +61,7 @@
 
 					float3 newColor = lerp(color.rgb, node.color.rgb, node.color.a);
 				
-					float nodeDepth = Linear01Depth(node.depth);
+					float nodeDepth = node.depth;
 					float delta = ceil(saturate(depthValue - nodeDepth));				
 					color.rgb = lerp(color.rgb, newColor, delta);
 

@@ -70,7 +70,9 @@
 
 					LinkedListNode n;
 					n.color = col;
-					n.depth = i.pos.z;
+
+					// TODO: Make this a uint, possibly, to get more precision
+					n.depth = Linear01Depth(i.pos.z);
 					n.childIndex = oldHeadIndex;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
 				}
