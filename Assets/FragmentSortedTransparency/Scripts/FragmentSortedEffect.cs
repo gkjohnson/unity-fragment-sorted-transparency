@@ -11,7 +11,7 @@ public class FragmentSortedEffect : MonoBehaviour {
 
     const string HEAD_BUFFER_NAME = "_FragmentSortedTransparencyHead";
     const string LINKEDLIST_BUFFER_NAME = "_FragmentSortedTransparencyLinkedList";
-    const string LINKEDLIST_NULL_NAME = "LINKEDLIST_END";
+    const string LINKEDLIST_END_NAME = "LINKEDLIST_END";
 
     const int CLEAR_HEADER_KERNEL = 0;
     const int CLEAR_LINKEDLIST_KERNEL = 1;
@@ -99,7 +99,7 @@ public class FragmentSortedEffect : MonoBehaviour {
         // Draw the meshes
         Shader.SetGlobalBuffer(HEAD_BUFFER_NAME, _headerBuffer);
         Shader.SetGlobalBuffer(LINKEDLIST_BUFFER_NAME, _linkedListBuffer);
-        Shader.SetGlobalInt(LINKEDLIST_NULL_NAME, _linkedListBuffer.count);
+        Shader.SetGlobalInt(LINKEDLIST_END_NAME, _linkedListBuffer.count);
 
         UnityEngine.Rendering.CommandBuffer commandBuffer = new UnityEngine.Rendering.CommandBuffer();
         for (int i = 0; i < _renderers.Count; i ++) {
@@ -121,25 +121,17 @@ public class FragmentSortedEffect : MonoBehaviour {
         clearUtilities.Dispatch(SORT_LINKEDLIST_KERNEL, _headerBuffer.count, 1, 1);
 
         Graphics.ClearRandomWriteTargets();
-
-        // TODO: sort the fragments here?
-        // or in draw?
-        // or on insert?
-
-        // composite into the destination buffer
-        // TODO: How do we sample the depth buffer here?
-
+        
         compositeMaterial.DisableKeyword("FRAGS_PER_PIXEL");
         if (drawFragmentCount) {
             compositeMaterial.EnableKeyword("FRAGS_PER_PIXEL");
             compositeMaterial.SetFloat("_FragmentCount", checkFragmentCount);
         }
-        
         Graphics.Blit(source, destination, compositeMaterial);
         
         Shader.SetGlobalBuffer(HEAD_BUFFER_NAME, null);
         Shader.SetGlobalBuffer(LINKEDLIST_BUFFER_NAME, null);
-        Shader.SetGlobalInt(LINKEDLIST_NULL_NAME, 0);
+        Shader.SetGlobalInt(LINKEDLIST_END_NAME, 0);
     }
 
     private void OnDestroy() {
