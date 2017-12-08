@@ -20,7 +20,7 @@
 			struct LinkedListNode {
 				float4 color;
 				float depth;
-				int childIndex;
+				uint childIndex;
 			};
 			
 			struct v2f {
@@ -65,12 +65,12 @@
 
 				// Form the node
 				int childIndex = (int)_FragmentSortedTransparencyLinkedList.IncrementCounter();
-				if (childIndex != LINKEDLIST_END) {
+				if (childIndex != (LINKEDLIST_END - 1)) {
 					
 					int headIndex = screenPos.y * _ScreenParams.x + screenPos.x;
 					int oldHeadIndex;
 					
-					InterlockedExchange(_FragmentSortedTransparencyHead[headIndex], childIndex, oldHeadIndex);
+					InterlockedExchange(_FragmentSortedTransparencyHead[headIndex], childIndex + 1, oldHeadIndex);
 
 					LinkedListNode n;
 					n.color = col;

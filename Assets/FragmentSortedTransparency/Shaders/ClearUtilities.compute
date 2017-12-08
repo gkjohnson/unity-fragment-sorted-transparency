@@ -7,7 +7,7 @@
 struct LinkedListNode {
 	float4 color;
 	float depth;
-	int childIndex;
+	uint childIndex;
 };
 
 RWStructuredBuffer<int> _FragmentSortedTransparencyHead;
@@ -15,7 +15,7 @@ RWStructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList;
  
 [numthreads(1, 1, 1)]
 void ClearHeaderBuffer(uint3 id : SV_DispatchThreadID) {
-	_FragmentSortedTransparencyHead[id.x] = -1;
+	_FragmentSortedTransparencyHead[id.x] = 0;
 }
 
 [numthreads(1, 1, 1)]
@@ -23,7 +23,7 @@ void ClearLinkedListBuffer(uint3 id : SV_DispatchThreadID) {
 	LinkedListNode n;
 	n.color = float4(0, 0, 0, 0);
 	n.depth = 0;
-	n.childIndex = -1;
+	n.childIndex = 0;
 	
 	_FragmentSortedTransparencyLinkedList[id.x] = n;
 }
@@ -33,11 +33,11 @@ void SortLinkedList(uint3 id : SV_DispatchThreadID) {
 	for (uint i = 0; i < MAX_SORT_ITERATIONS; i++) {
 		int currIndex = _FragmentSortedTransparencyHead[id.x];
 		
-		while (currIndex != -1) {
-			LinkedListNode n = _FragmentSortedTransparencyLinkedList[currIndex];
+		while (currIndex != 0) {
+			LinkedListNode n = _FragmentSortedTransparencyLinkedList[currIndex - 1];
 			int nextIndex = n.childIndex;
-			if (nextIndex != -1) {
-				LinkedListNode n2 = _FragmentSortedTransparencyLinkedList[nextIndex];
+			if (nextIndex != 0) {
+				LinkedListNode n2 = _FragmentSortedTransparencyLinkedList[nextIndex - 1];
 
 				if (n.depth < n2.depth) {
 					LinkedListNode newCurr = n2;
@@ -46,8 +46,8 @@ void SortLinkedList(uint3 id : SV_DispatchThreadID) {
 					LinkedListNode newNext = n;
 					newNext.childIndex = n2.childIndex;
 					
-					_FragmentSortedTransparencyLinkedList[currIndex] = newCurr;
-					_FragmentSortedTransparencyLinkedList[nextIndex] = newNext;
+					_FragmentSortedTransparencyLinkedList[currIndex - 1] = newCurr;
+					_FragmentSortedTransparencyLinkedList[nextIndex - 1] = newNext;
 				}
 			}
 			currIndex = nextIndex;

@@ -19,7 +19,7 @@
 			struct LinkedListNode {
 				float4 color;
 				float depth;
-				int childIndex;
+				uint childIndex;
 			};
 
 			struct v2f {
@@ -59,8 +59,8 @@
 
 				int currIndex = child;
 				int count = 0;
-				while (currIndex != -1) {
-					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex];
+				while (currIndex != 0) {
+					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex - 1];
 
 					float3 newColor = lerp(color.rgb, node.color.rgb, node.color.a);
 				

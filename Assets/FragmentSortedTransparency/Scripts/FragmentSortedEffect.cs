@@ -6,7 +6,7 @@ public class FragmentSortedEffect : MonoBehaviour {
     struct LinkedListNode {
         float r, g, b, a;
         float depth;
-        int childIndex;
+        uint childIndex;
     }
 
     const string HEAD_BUFFER_NAME = "_FragmentSortedTransparencyHead";
