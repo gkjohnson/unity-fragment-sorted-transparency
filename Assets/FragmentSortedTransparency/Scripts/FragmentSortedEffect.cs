@@ -31,9 +31,13 @@ public class FragmentSortedEffect : MonoBehaviour {
     }
 
 
-    [Range(0.5f, 10.0f)]
-    public float fragsPerPixel = 4;
-    
+    [Range(0.5f, 10.0f)] public float fragsPerPixel = 4;
+
+    [Header("Debug")]
+    public bool drawFragmentCount = false;
+    [Range(1, 100)] public int checkFragmentCount = 15;
+
+    [Header("Shaders")]
     public Shader compositeShader = null;
     public ComputeShader clearUtilities = null;
 
@@ -124,6 +128,12 @@ public class FragmentSortedEffect : MonoBehaviour {
 
         // composite into the destination buffer
         // TODO: How do we sample the depth buffer here?
+
+        compositeMaterial.DisableKeyword("FRAGS_PER_PIXEL");
+        if (drawFragmentCount) {
+            compositeMaterial.EnableKeyword("FRAGS_PER_PIXEL");
+            compositeMaterial.SetFloat("_FragmentCount", checkFragmentCount);
+        }
         
         Graphics.Blit(source, destination, compositeMaterial);
         

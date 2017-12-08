@@ -12,6 +12,7 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"
+			#pragma multi_compile _ FRAGS_PER_PIXEL
 
 			sampler2D _CameraDepthTexture;
 
@@ -28,6 +29,7 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
+			float _FragmentCount;
 			StructuredBuffer<int> _FragmentSortedTransparencyHead;
 			StructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList;
 
@@ -56,6 +58,7 @@
 				float4 depth = float4(depthValue, depthValue, depthValue, 1);
 
 				int currIndex = child;
+				int count = 0;
 				while (currIndex != -1) {
 					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex];
 
@@ -66,8 +69,16 @@
 					color.rgb = lerp(color.rgb, newColor, delta);
 
 					currIndex = node.childIndex;
+					count++;
 				}
 
+				// Draw a heat map of fragment overlay
+				#ifdef FRAGS_PER_PIXEL
+				float fragCount = max(_FragmentCount, 1);
+				float val = saturate(count / fragCount);
+				return float4(val, floor(val), floor(val), 1);
+				#endif
+	
 				return color;
 			}
 			ENDCG

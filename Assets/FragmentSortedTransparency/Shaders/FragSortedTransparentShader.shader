@@ -47,6 +47,10 @@
 			}
 
 			float4 frag(v2f i, fixed facing: VFACE) : COLOR {
+				// TODO: Discard fragment based on already rendered depth
+				// ZTest doesnt seem to prevent this from writing to the
+				// buffer?
+
 				float2 screenPos = i.spos.xy / i.spos.w;
 				screenPos *= _ScreenParams.xy;
 				screenPos = floor(screenPos);
@@ -59,7 +63,7 @@
 				float4 col = float4(AmbientLight + DiffuseLight) * _Color;
 				col.a = _Color.a;
 
-				// Form the 
+				// Form the node
 				int childIndex = (int)_FragmentSortedTransparencyLinkedList.IncrementCounter();
 				if (childIndex != LINKEDLIST_END) {
 					
@@ -70,8 +74,6 @@
 
 					LinkedListNode n;
 					n.color = col;
-
-					// TODO: Make this a uint, possibly, to get more precision
 					n.depth = Linear01Depth(i.pos.z);
 					n.childIndex = oldHeadIndex;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
