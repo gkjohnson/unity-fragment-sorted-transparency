@@ -2,6 +2,9 @@
 
 Full fragment-sorted-transparency implementation using compute buffers and shaders to mitigate the typical drawbacks of mesh-sorted transparency, such as object pop-in and lack of mesh penetration. 
 
+### Use
+TODO
+
 ### TODO
 #### Basic Features
 - [ ] Support the rendering in the editor view, or at least a helper visualization
