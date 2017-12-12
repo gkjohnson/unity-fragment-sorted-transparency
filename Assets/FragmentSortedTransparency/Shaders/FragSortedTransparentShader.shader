@@ -18,9 +18,13 @@
 			#pragma fragment frag
 
 			struct LinkedListNode {
-				float4 color;
+				half4 color;
 				float depth;
 				uint childIndex;
+
+				half4 fillColor;
+				half4 normal;
+				float facing;
 			};
 			
 			struct v2f {
@@ -71,11 +75,15 @@
 					int oldHeadIndex;
 					
 					InterlockedExchange(_FragmentSortedTransparencyHead[headIndex], childIndex + 1, oldHeadIndex);
-
+					 
 					LinkedListNode n;
 					n.color = col;
 					n.depth = Linear01Depth(i.pos.z);
 					n.childIndex = oldHeadIndex;
+
+					n.fillColor = _Color;
+					n.normal = norm;
+					n.facing = facing;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
 				}
 

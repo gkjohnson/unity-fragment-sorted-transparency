@@ -7,6 +7,11 @@ public class FragmentSortedEffect : MonoBehaviour {
         Color32 color;
         float depth;
         uint childIndex;
+
+        // optional
+        Color32 fillColor;
+        Color32 normal;
+        float facing;
     }
 
     const string HEAD_BUFFER_NAME = "_FragmentSortedTransparencyHead";

@@ -5,9 +5,13 @@
 #define MAX_SORT_ITERATIONS 10
 
 struct LinkedListNode {
-	float4 color;
+	half4 color;
 	float depth;
 	uint childIndex;
+
+	half4 fillColor;
+	half4 normal;
+	float facing;
 };
 
 RWStructuredBuffer<int> _FragmentSortedTransparencyHead;
@@ -21,10 +25,14 @@ void ClearHeaderBuffer(uint3 id : SV_DispatchThreadID) {
 [numthreads(1, 1, 1)]
 void ClearLinkedListBuffer(uint3 id : SV_DispatchThreadID) {
 	LinkedListNode n;
-	n.color = float4(0, 0, 0, 0);
+	n.color = half4(0, 0, 0, 0);
 	n.depth = 0;
 	n.childIndex = 0;
-	
+
+	n.fillColor = half4(0, 0, 0, 0);
+	n.normal = half4(0, 0, 0, 0);
+	n.facing = 0;
+
 	_FragmentSortedTransparencyLinkedList[id.x] = n;
 }
 

@@ -17,9 +17,14 @@
 			sampler2D _CameraDepthTexture;
 
 			struct LinkedListNode {
-				float4 color;
+				half4 color;
 				float depth;
 				uint childIndex;
+
+				// optional
+				half4 fillColor;
+				half4 normal;
+				float facing;
 			};
 
 			struct v2f {
