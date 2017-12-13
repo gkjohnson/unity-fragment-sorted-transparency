@@ -66,15 +66,25 @@
 				int count = 0;
 				while (currIndex != 0) {
 					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex - 1];
-
-					float3 newColor = lerp(color.rgb, node.color.rgb, node.color.a);
-				
-					float nodeDepth = node.depth;
-					float delta = ceil(saturate(depthValue - nodeDepth));				
-					color.rgb = lerp(color.rgb, newColor, delta);
-
 					currIndex = node.childIndex;
 					count++;
+					
+					uint nextIndex = node.childIndex;
+
+					if (depthValue > node.depth && node.facing == 1) {
+						// render the back face color
+						color.rgb = lerp(color.rgb, node.color.rgb, node.color.a);
+					} else if (nextIndex != 0 && node.facing == -1) {
+						// render the inner volume
+						LinkedListNode nextn = _FragmentSortedTransparencyLinkedList[nextIndex - 1];
+
+						// bigger number is further away
+						// TODO: convert the depth delta to a world-space distance
+						// TODO: figure out what to do in the intersection volumes
+						float depthDelta = min(depthValue, node.depth) - nextn.depth;
+						float alpha = saturate(3000 * depthDelta * node.fillColor.a);
+						color.rgb = lerp(color.rgb, node.fillColor.rgb, alpha);
+					}
 				}
 
 				// Draw a heat map of fragment overlay
