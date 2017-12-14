@@ -1,4 +1,4 @@
-﻿Shader "Fragment Sorted Transparency" {
+Shader "Fragment Sorted Transparency" {
 	Properties {
 		_Color("Color", Color) = (1,1,1,1)
 	}
@@ -31,6 +31,7 @@
 				float4 pos      : POSITION;
 				float4 worldNormal : TEXCOORD0;
 				float4 spos     : TEXCOORD1;
+				float3 viewDir  : TEXCOORD2;
 			};
 
 			int LINKEDLIST_END;
@@ -46,6 +47,7 @@
 				o.spos = ComputeScreenPos(o.pos);
 				o.worldNormal = mul(unity_ObjectToWorld, v.normal);
 				o.worldNormal.xyz = normalize(o.worldNormal.xyz);
+				o.viewDir = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex).xyz);
 
 				return o;
 			}
@@ -66,6 +68,27 @@
 				float4 DiffuseLight = saturate(dot(LightDirection, -normalDirection))*_LightColor0;
 				float4 col = float4(AmbientLight + DiffuseLight) * _Color;
 				col.a = _Color.a;
+
+				float _Shininess = 10;
+				float attenuation = 1.0;
+				float specularReflection;
+				if (dot(-normalDirection, LightDirection) < 0.0)
+					// light source on the wrong side?
+				{
+					specularReflection = float3(0.0, 0.0, 0.0);
+					// no specular reflection
+				}
+				else // light source on the right side
+				{
+					specularReflection = attenuation
+						* pow(max(0.0, dot(
+							reflect(-LightDirection, normalDirection),
+							i.viewDir)), _Shininess);
+				}
+
+				col.rgb = float3(1,1,1);
+				col.a = specularReflection;
+
 
 				// Form the node
 				int childIndex = (int)_FragmentSortedTransparencyLinkedList.IncrementCounter();

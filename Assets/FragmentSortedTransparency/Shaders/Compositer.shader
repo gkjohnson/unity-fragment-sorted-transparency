@@ -82,7 +82,7 @@
 						// TODO: convert the depth delta to a world-space distance
 						// TODO: figure out what to do in the intersection volumes
 						float depthDelta = min(depthValue, node.depth) - nextn.depth;
-						float alpha = saturate(3000 * depthDelta * node.fillColor.a);
+						float alpha = saturate(500 * depthDelta * node.fillColor.a);
 						color.rgb = lerp(color.rgb, node.fillColor.rgb, alpha);
 					}
 				}
