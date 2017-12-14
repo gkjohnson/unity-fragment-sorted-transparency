@@ -1,7 +1,7 @@
 ﻿Shader "Fragment Sorted Transparency" {
 	Properties {
 		_Color("Color", Color) = (1,1,1,1)
-		_Shininess("Shininess", Float) = 1
+		_Shininess("Shininess", Float) = 10
 	}
 
 	SubShader {
@@ -105,7 +105,9 @@
 					n.depth = Linear01Depth(i.pos.z);
 					n.childIndex = oldHeadIndex;
 
-					n.fillColor = _Color * _LightColor0;
+					n.fillColor = _Color;
+					n.fillColor.rgb *= _LightColor0.rgb;
+
 					n.normal = norm;
 					n.facing = facing;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
