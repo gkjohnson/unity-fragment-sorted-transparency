@@ -108,7 +108,7 @@
 					n.fillColor = _Color;
 					n.fillColor.rgb *= _LightColor0.rgb;
 
-					n.normal = norm;
+					n.normal = float4(mul((float3x3)UNITY_MATRIX_V, normalDirection * facing), 0);
 					n.facing = facing;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
 				}

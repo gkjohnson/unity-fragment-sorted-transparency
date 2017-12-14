@@ -59,11 +59,40 @@
 				float depthSample = tex2Dproj(_CameraDepthTexture, uv).r;
 				float depthValue = Linear01Depth(depthSample);
 				
-				float4 color = tex2Dproj(_MainTex, uv);
 				float4 depth = float4(depthValue, depthValue, depthValue, 1);
 
 				int currIndex = child;
 				int count = 0;
+				float3 refractIntensity = float3(0, 0, 0);
+				
+				// TODO: roll this into the same loop we use for color
+				// and sample the main texture after everything is done
+				while (currIndex != 0) {
+					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex - 1];
+					currIndex = node.childIndex;
+					count++;
+
+					uint nextIndex = node.childIndex;
+
+					if (depthValue > node.depth && node.facing == 1) {
+						// TODO: include front face refraction?
+					}
+					else if (nextIndex != 0 && node.facing == -1) {
+						LinkedListNode nextn = _FragmentSortedTransparencyLinkedList[nextIndex - 1];
+
+						// bigger number is further away
+						// TODO: convert the depth delta to a world-space distance
+						// TODO: figure out what to do in the intersection volumes
+						float depthDelta = min(depthValue, node.depth) - nextn.depth;
+						refractIntensity += node.normal.rgb * saturate(depthDelta);
+
+					}
+				}
+				uv.xy -= refractIntensity.xy * 10;
+				float4 color = tex2Dproj(_MainTex, uv);
+
+				currIndex = child;
+				count = 0;
 				while (currIndex != 0) {
 					LinkedListNode node = _FragmentSortedTransparencyLinkedList[currIndex - 1];
 					currIndex = node.childIndex;
