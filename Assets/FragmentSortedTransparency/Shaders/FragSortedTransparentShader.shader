@@ -1,6 +1,7 @@
-Shader "Fragment Sorted Transparency" {
+﻿Shader "Fragment Sorted Transparency" {
 	Properties {
 		_Color("Color", Color) = (1,1,1,1)
+		_Shininess("Shininess", Float) = 1
 	}
 
 	SubShader {
@@ -40,6 +41,7 @@ Shader "Fragment Sorted Transparency" {
 			
 			uniform fixed4 _LightColor0;
 			float4 _Color;
+			float _Shininess;
 
 			v2f vert(appdata_base v) {
 				v2f o;
@@ -69,7 +71,6 @@ Shader "Fragment Sorted Transparency" {
 				float4 col = float4(AmbientLight + DiffuseLight) * _Color;
 				col.a = _Color.a;
 
-				float _Shininess = 10;
 				float attenuation = 1.0;
 				float specularReflection;
 				if (dot(-normalDirection, LightDirection) < 0.0)
@@ -86,7 +87,7 @@ Shader "Fragment Sorted Transparency" {
 							i.viewDir)), _Shininess);
 				}
 
-				col.rgb = float3(1,1,1);
+				col.rgb = _LightColor0;
 				col.a = specularReflection;
 
 
@@ -104,7 +105,7 @@ Shader "Fragment Sorted Transparency" {
 					n.depth = Linear01Depth(i.pos.z);
 					n.childIndex = oldHeadIndex;
 
-					n.fillColor = _Color;
+					n.fillColor = _Color * _LightColor0;
 					n.normal = norm;
 					n.facing = facing;
 					_FragmentSortedTransparencyLinkedList[childIndex] = n;
