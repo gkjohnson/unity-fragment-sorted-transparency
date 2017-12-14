@@ -7,7 +7,6 @@ TODO
 
 ### TODO
 #### Basic Features
-- [ ] Support the rendering in the editor view, or at least a helper visualization
 - [ ] Test against the light(s) for sub surface scattering
 - [ ] Refraction
 - [ ] Separate shader logic into cginc files
