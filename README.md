@@ -19,3 +19,4 @@ TODO
 - [ ] Anti aliasing
 - [ ] Save material-level qualities in a different buffer (fill color, index of refraction / diffusion)
 - [ ] Shader feature options
+- [ ] Refracted shadows
