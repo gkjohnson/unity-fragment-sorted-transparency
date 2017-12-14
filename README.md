@@ -12,6 +12,7 @@ TODO
 - [ ] Separate shader logic into cginc files
 - [ ] Test against depth when first drawing to optimize
 - [ ] Minimize memory usage
+- [ ] Figure out what to do at volume overlap
 
 #### Extras
 - [ ] Cast colored "shadows" from transparent objects
