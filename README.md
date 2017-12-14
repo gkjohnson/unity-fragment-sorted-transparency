@@ -8,14 +8,15 @@ TODO
 ### TODO
 #### Basic Features
 - [ ] Support the rendering in the editor view, or at least a helper visualization
-- [ ] Add a custom Amplify Shader Editor shader main
+- [ ] Test against the light(s) for sub surface scattering
+- [ ] Refraction
+- [ ] Separate shader logic into cginc files
 - [ ] Test against depth when first drawing to optimize
-- [ ] Minimize memory usage 
+- [ ] Minimize memory usage
 
 #### Extras
-- [ ] Store the facing direction in the fragment and scale the opacity based on volume / depth delta
-- [ ] Provide visualization for heavily overlapped pixels
-- [ ] Store both the volume color and surface color in a fragment so it can be handled separately
 - [ ] Cast colored "shadows" from transparent objects
 - [ ] Add lower resolution support
 - [ ] Anti aliasing
+- [ ] Save material-level qualities in a different buffer (fill color, index of refraction / diffusion)
+- [ ] Shader feature options
