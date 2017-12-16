@@ -8,7 +8,6 @@ TODO
 ### TODO
 #### Basic Features
 - [ ] Test against the light(s) for sub surface scattering
-- [ ] Refraction
 - [ ] Separate shader logic into cginc files
 - [ ] Test against depth when first drawing to optimize
 - [ ] Minimize memory usage
