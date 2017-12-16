@@ -132,6 +132,7 @@ public class FragmentSortedEffect : MonoBehaviour {
             compositeMaterial.EnableKeyword("FRAGS_PER_PIXEL");
             compositeMaterial.SetFloat("_FragmentCount", checkFragmentCount);
         }
+        compositeMaterial.SetFloat("_DepthScale", effectCamera.farClipPlane - effectCamera.nearClipPlane);
         Graphics.Blit(source, destination, compositeMaterial);
         
         Shader.SetGlobalBuffer(HEAD_BUFFER_NAME, null);

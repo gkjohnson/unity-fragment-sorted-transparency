@@ -1,6 +1,7 @@
 ﻿Shader "Hidden/Compositer" {
 	Properties {
 		_MainTex("", 2D) = "white" {}
+		_DepthScale("", Float) = 1
 	}
 
 	SubShader {
@@ -35,6 +36,7 @@
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
 			float _FragmentCount;
+			float _DepthScale;
 			StructuredBuffer<int> _FragmentSortedTransparencyHead;
 			StructuredBuffer<LinkedListNode> _FragmentSortedTransparencyLinkedList;
 
@@ -88,7 +90,8 @@
 
 					}
 				}
-				uv.xy -= refractIntensity.xy * 10;
+				// TODO: Why does the depth scale affect this
+				uv.xy -= refractIntensity.xy * 0.01 * _DepthScale;
 				float4 color = tex2Dproj(_MainTex, uv);
 
 				currIndex = child;
@@ -108,10 +111,9 @@
 						LinkedListNode nextn = _FragmentSortedTransparencyLinkedList[nextIndex - 1];
 
 						// bigger number is further away
-						// TODO: convert the depth delta to a world-space distance
 						// TODO: figure out what to do in the intersection volumes
 						float depthDelta = min(depthValue, node.depth) - nextn.depth;
-						float alpha = saturate(500 * depthDelta * node.fillColor.a);
+						float alpha = saturate(_DepthScale * 0.5 * depthDelta * node.fillColor.a);
 						color.rgb = lerp(color.rgb, node.fillColor.rgb, alpha);
 					}
 				}
